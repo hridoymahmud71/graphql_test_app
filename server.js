@@ -2,6 +2,8 @@ var express = require('express');
 var { graphqlHTTP } = require('express-graphql');
 const { buildSchema, graphql } = require("graphql");
 
+const userData = require("./db/users.json");
+
 const schema = buildSchema(`
 type Person{ 
   name:String
@@ -12,8 +14,10 @@ type Developer{
   experience:Int
 }
 type Query{
-     employee:Developer,  
-     isDeveloper:Boolean
+    users:[Person],
+    user(id:Int):Person
+    employee:Developer,  
+    isDeveloper:Boolean
 }`);
 
 const resolver = {
@@ -24,15 +28,21 @@ const resolver = {
     return "hridoymahmud71@gmail.com";
   },
   employee: () => {
-    return { 
-      profile: { 
+    return {
+      profile: {
         name: "Mahmud",
         email: "hrim11@gmail.com"
-       },
-       experience: 6 
-      };
-  }
-  
+      },
+      experience: 6
+    };
+  },
+
+  users: () => {
+    return userData;
+    
+  },
+  users: ({id}) => userData.find((user) => user.id === id)
+
 }
 
 var app = express();
