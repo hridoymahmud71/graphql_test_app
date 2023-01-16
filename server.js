@@ -5,11 +5,19 @@ const { buildSchema, graphql } = require("graphql");
 const userData = require("./db/users.json");
 
 let fakeDB = {};
+let spaceFakeDB = [
+  {id:1,name:"office",rent:"$25"},
+  {id:2,name:"co-working",rent:"$12.50"}
+]
 
 const schema = buildSchema(`
 type Person{ 
   name:String
   email:String
+}
+type Space{ 
+  name:String
+  rent:String
 }
 type Developer{  
   profile:Person,
@@ -21,9 +29,11 @@ type Query{
     employee:Developer,  
     isDeveloper:Boolean
     getMsg:String
+    getSpace(id:ID !):Space !
 }
 type Mutation{
   addMsg(msg:String):String
+  createSpace(name:String,rent:String):Space !
 }
 `
 );
@@ -51,7 +61,9 @@ const resolver = {
   },
   user: ({id}) => userData.find((user) => user.id === id),
   addMsg: ({msg}) => fakeDB.message = msg,
-  getMsg: () => fakeDB.message
+  getMsg: () => fakeDB.message,
+  createSpace: ({name,rent}) => (spaceFakeDB[spaceFakeDB.length] = {id:spaceFakeDB.length,name,rent}),
+  getSpace: ({id}) => spaceFakeDB.find((space) => space.id == id),
 }
 
 var app = express();
