@@ -1,6 +1,6 @@
-const { gql } = require("apollo-server");
+const { ApolloServer,gql } = require("@apollo/server");
 
-const types = gql`
+const types = `
   type Wand {
     wood: String!
     core: String!
