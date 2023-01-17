@@ -6,18 +6,25 @@ const userData = require("./db/users.json");
 
 let fakeDB = {};
 let spaceFakeDB = [
-  { id: 1, name: "office", rent: "$25" },
-  { id: 2, name: "co-working", rent: "$12.50" }
+  { id: 1, name: "office", rent: "$25" ,status:"available"},
+  { id: 2, name: "co-working", rent: "$12.50",status:"unavailable" }
 ]
 
 const schema = buildSchema(`
 type Person{ 
   name:String
   email:String
+  pet:String
+  petName:String
+}
+enum SPACESTATUS{
+  available
+  unavailable
 }
 type Space{ 
   name:String
   rent:String
+  status:SPACESTATUS
 }
 type Developer{  
   profile:Person,
@@ -30,9 +37,13 @@ type Query{
     isDeveloper:Boolean
     getMsg:String
     getSpace(id:ID !):Space !
+    spaces:[Space!]!
 }
+
 input SpaceInput{
-  name:String,rent:String
+  name:String,
+  rent:String,
+  status:SPACESTATUS
 }
 type Mutation{
   addMsg(msg:String):String
@@ -66,13 +77,14 @@ const resolver = {
   user: ({ id }) => userData.find((user) => user.id === id),
   addMsg: ({ msg }) => fakeDB.message = msg,
   getMsg: () => fakeDB.message,
-  createSpace: ({ name, rent }) => (spaceFakeDB[spaceFakeDB.length] = { id: spaceFakeDB.length, name, rent }),
+  createSpace: ({ name, input }) => (spaceFakeDB[spaceFakeDB.length] = { id: spaceFakeDB.length, ...input }),
   updateSpace: ({ id, input }) => {
     const index = id - 1;
-    spaceFakeDB[index] = { id, name: input.name, rent: input.rent }
+    spaceFakeDB[index] = { id, ...input }
     return spaceFakeDB[index];
   },
   getSpace: ({ id }) => spaceFakeDB.find((space) => space.id == id),
+  spaces: () => spaceFakeDB,
 }
 
 var app = express();
